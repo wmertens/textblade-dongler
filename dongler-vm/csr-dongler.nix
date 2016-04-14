@@ -13,7 +13,7 @@
 
     # CLI packages
     environment.systemPackages = with pkgs; [
-      bluez usbutils
+      bluez usbutils bc
     ];
   };
 }
