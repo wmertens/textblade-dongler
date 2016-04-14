@@ -21,7 +21,7 @@ In theory these steps also work on Windows.
 
 Roadmap
 ---
-* [ ] Working VirtualBox with bluetooth
+* [x] Working VirtualBox with bluetooth
 * [ ] Make working dongle
 * [ ] Scripts to automate
 * [ ] livecd/liveusb image
