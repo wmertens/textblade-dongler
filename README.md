@@ -36,7 +36,7 @@ EncSize and Rand are decimal and have to be converted to hex, use `echo 'obase=1
 
 CRS8510 programming
 ---
-The `PSKEY_USR32` field has to be set to `tbMac + 1482 + be16(EDiv) + be64(Rand) + be16(Key)` (all hexadecimal), where be16 and be64 are big-endian representations, 2 and 8 bytes long respectively. This means the Rand is reversed entirely and the Key on every 2 bytes
+The `PSKEY_USR42` field has to be set to `tbMac + 1482 + be16(EDiv) + be64(Rand) + be16(Key)` (all hexadecimal), where be16 and be64 are big-endian representations, 2 and 8 bytes long respectively. This means the Rand is reversed entirely and the Key on every 2 bytes
 
 Once that is set, `bccmd psset -r -s 0 0x3cd 2` will set the dongle into USB keyboard mode.
 
