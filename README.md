@@ -7,6 +7,8 @@ The [Waytools TextBlade](http://waytools.com) is amazing but not every computer 
 
 This project aims to make that easy.
 
+Warning: I managed to brick a dongle by writing incorrect data to the pairing data slot. The script should write it correctly, but be careful. Not responsible for any damage, caveat emptor, yadda yadda.
+
 Roadmap
 ---
 * [x] Working NixOS VM with Bluetooth
@@ -17,6 +19,7 @@ Roadmap
   * [ ] Fix TODOs in the scripts
   * [ ] Autostart on VM terminal, no SSH needed to write the pairing
 * [ ] LiveCD/USB image
+* Maybe allow to write the same keys and MAC addresses to multiple dongles so you can keep a single jump slot for multiple physical locations
 
 Set up test VM
 ---
