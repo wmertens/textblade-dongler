@@ -7,7 +7,7 @@ The [Waytools TextBlade](http://waytools.com) is amazing but not every computer 
 
 This project aims to make that easy.
 
-Warning: I managed to brick a dongle by writing incorrect data to the pairing data slot. The script should write it correctly, but be careful. Not responsible for any damage, caveat emptor, yadda yadda.
+**Warning**: I managed to brick a dongle by writing incorrectly formatted data to the pairing data slot. Once I disconnected it, it wouldn't show up on USB any more (I assume the firmware crashes while trying to read the data). The script should write the token correctly, but be careful. Not responsible for any damage, caveat emptor, yadda yadda.
 
 Roadmap
 ---
