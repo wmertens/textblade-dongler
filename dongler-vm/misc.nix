@@ -1,6 +1,7 @@
 # Misc configuration:
 {
-  network.enableRollback = true;
+  # Actually, we don't care about rollback for this VM
+  # network.enableRollback = true;
 
   defaults = {
     programs = {
