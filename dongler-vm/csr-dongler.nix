@@ -10,11 +10,12 @@
     nixpkgs.config.packageOverrides = pkgs : {
       bluez = pkgs.bluez5;
       csr-hid2hci = pkgs.callPackage ../src/csr-hid2hci.nix {};
+      csr-pairing = pkgs.callPackage ../src/csr-pairing.nix {};
     };
 
     # CLI packages
     environment.systemPackages = with pkgs; [
-      csr-hid2hci
+      csr-hid2hci csr-pairing
       bluez usbutils bc
     ];
   };
