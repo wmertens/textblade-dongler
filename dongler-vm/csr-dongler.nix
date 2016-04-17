@@ -9,7 +9,7 @@
     hardware.bluetooth.enable = true;
     nixpkgs.config.packageOverrides = pkgs : {
       bluez = pkgs.bluez5;
-      csr-hid2hci = pkgs.callPackage ../csr-hid2hci.nix {};
+      csr-hid2hci = pkgs.callPackage ../src/csr-hid2hci.nix {};
     };
 
     # CLI packages
