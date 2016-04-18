@@ -35,7 +35,7 @@ waitFor() {
 waitFor "Controller"
 cmd power on
 cmd scan on
-devLine=$(waitFor "Device")
+devLine=$(waitFor "TextBlade")
 set -- $devLine
 dev=$4
 cmd pair $dev
