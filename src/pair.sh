@@ -45,3 +45,12 @@ cmd quit
 wait
 echo Dev is $dev
 echo Now run make-hid.sh $dev
+echo "If you type 'OK' now, I will run it for you"
+echo -n "OK? > "
+read ok
+echo
+if [ "$ok" = "OK" ]; then
+  make-hid.sh $dev
+else
+  echo "Not running make-hid."
+fi
