@@ -41,4 +41,4 @@ bccmd psload -s 0 /dev/stdin <<-EOF
 &03cd = 0002
 EOF
 bccmd psget 0x2b4
-info "Make sure the above output is $token"
+echo "Make sure the above output is $token"
