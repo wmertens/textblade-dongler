@@ -8,5 +8,12 @@
       # Make sysadminning easier
       bash.enableCompletion = true;
     };
+
+    nix = {
+      extraOptions = ''
+        auto-optimise-store = true
+      '';
+    };
+
   };
 }
