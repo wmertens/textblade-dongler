@@ -34,6 +34,7 @@ waitFor() {
 
 waitFor "Controller"
 cmd power on
+waitFor "Changing"
 cmd scan on
 devLine=$(waitFor "TextBlade")
 set -- $devLine
