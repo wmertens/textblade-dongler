@@ -15,5 +15,9 @@
       '';
     };
 
+    boot.kernelParams = [
+      # Don't blank the console screen
+      "consoleblank=0"
+    ];
   };
 }
