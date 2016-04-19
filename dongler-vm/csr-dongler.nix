@@ -12,6 +12,11 @@
       * Switch your TB on a free jump slot
       * Run pair.sh
       * Run the make-hid.sh command it outputs. Make sure that is your TextBlade.
+      * You can ssh in to have copy/paste available:
+        * Choose a password with `passwd`
+        * Examine the output of `ip a | grep inet`
+          * You probably need a 192.168 address
+        * ssh to root@ip
     '';
 
     #  Bluez 5
