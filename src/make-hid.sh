@@ -39,6 +39,21 @@ bccmd psload -s 0 /dev/stdin <<-EOF
 &02b4 = $token
 // PSKEY_INITIAL_BOOTMODE
 &03cd = 0002
+&04b0 = 03c0 03cc 22c0
+&04b1 = 01f9 0042
+&04b2 = 02bf 03c0 03cc 02bd 000d 000e 215f
+&04b8 = 0000
+&04b9 = 0000
+&04ba = 0001
+&04f8 = 0000
+&04f9 = 0001
+&0538 = 100b
+&0539 = 0001
+&053a = 0001
+&053b = 0000 0000 0000
+&053c = 0002
+&053d = 0000
+&053e = 0002 0001 000a 0008 0010 0008 0020 0008 0040 0004 0080 0002 0140 0001 0200 0002
 EOF
 bccmd psread | grep '&02b4'
 echo "Make sure the above output is $token"
