@@ -8,7 +8,7 @@
 info() { echo -- "$@" >&2; }
 
 echo -n "waiting for dongle"
-while ! lsusb | grep -q 0a12:0001; do
+while ! lsusb | grep -q -e 0a12:0001 -e 04bf:100b; do
   echo -n .
   sleep 1
 done

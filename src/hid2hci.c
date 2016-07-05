@@ -10,6 +10,9 @@ int main (int argc, char ** argv) {
     /* Alternatively, a12:100c can be set by the dongler to prevent CSR's software
        stack from auto-switching to HCI mode */
     h = libusb_open_device_with_vid_pid(NULL, 0x0a12, 0x100c);
+  if (!h)
+    /* TDK corp. uses 04bf:100b for the same dongle sold in the USA.  Detect this case. */
+    h = libusb_open_device_with_vid_pid(NULL, 0x04bf, 0x100b);
   if (!h) {
     printf("No device in HID mode found\n");
   } else {
