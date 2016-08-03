@@ -8,7 +8,8 @@
 info() { echo -- "$@" >&2; }
 
 echo -n "waiting for dongle"
-while ! lsusb | grep -q -e 0a12:0001 -e 04bf:100b; do
+while ! lsusb | grep -q -e 0a12:0001 -e 04bf:100b -e 04bf:0320; do
+  csr-hid2hci | grep -v 'No device in HID mode found'
   echo -n .
   sleep 1
 done
