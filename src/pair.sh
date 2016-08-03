@@ -36,6 +36,14 @@ waitFor() {
 waitFor "Controller"
 cmd power on
 waitFor "Changing"
+
+if ! bccmd psget 0x3cd > /dev/null; then
+  info "Unfortunately, your dongle is not capable of HID mode :-("
+  cmd quit
+  wait
+  exit 1
+fi
+
 cmd scan on
 devLine=$(waitFor "TextBlade")
 set -- $devLine

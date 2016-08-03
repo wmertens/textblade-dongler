@@ -13,6 +13,10 @@ function die() {
 infodir="/var/lib/bluetooth/$CTRL/$MAC"
 [ -d "$infodir" ] || die "$infodir does not exist, cannot continue"
 
+if ! bccmd psget 0x3cd > /dev/null; then
+  die "Unfortunately, your dongle is not capable of HID mode (or not powered on)"
+fi
+
 function readKeys() {
   export Key= EDiv= Rand=
   export t= $(cat "/var/lib/bluetooth/$CTRL/$MAC/info" | sed -n -e '/^\[LongTermKey/,/^\[/p' | grep -E '^(Key|EDiv|Rand)=[A-F0-9]+$')
@@ -55,5 +59,9 @@ bccmd psload -s 0 /dev/stdin <<-EOF
 &053d = 0000
 &053e = 0002 0001 000a 0008 0010 0008 0020 0008 0040 0004 0080 0002 0140 0001 0200 0002
 EOF
+if [ $? -ne 0 ]; then
+  die 'write failed :-('
+fi
+
 bccmd psread | grep '&02b4'
 echo "Make sure the above output is $token"
