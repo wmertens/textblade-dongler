@@ -18,6 +18,7 @@
           * You probably need a 192.168 address
         * ssh to root@ip
     '';
+    services.openssh.permitRootLogin="yes";
 
     #  Bluez 5
     hardware.bluetooth.enable = true;
