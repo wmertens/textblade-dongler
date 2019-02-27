@@ -1,25 +1,74 @@
-#!/bin/sh
+#!/bin/bash
+
 MAC=$(echo "$1" | tr a-f A-F)
-DEV=hci0
-CTRL=$(tr a-f A-F </sys/class/bluetooth/$DEV/address)
+HCIDEV=hci0
+PASSEDDEV="$2"
 
 function die() {
   echo "FATAL: $@" 1>&2
   exit 1
 }
 
-[ -z "$CTRL" ] || [ -z "$MAC" ] && die "Call as: $0 keyboard-mac"
+declare -A ahci
 
-infodir="/var/lib/bluetooth/$CTRL/$MAC"
+ahci=()
+pipe=/tmp/hcitool$$
+trap "rm -f $pipe" EXIT
+
+if [[ ! -p $pipe ]]; then
+    echo  mkfifo $pipe
+fi
+
+hcitool dev > $pipe 2> /dev/null
+while read -t 1 line
+do
+    case $line in
+	hci*)
+	    strs=($line)
+	    echo "	hci[${strs[0]##hci}]: " ${strs[1]}
+	    ahci+=([${strs[0]}]="${strs[1]}")
+	    # echo "hci[${strs[0]}]: "${hci[${strs[0]}]}
+	    ;;
+	*)
+	    echo "$line"
+	    ;;
+    esac
+    
+done < $pipe
+
+if hcitool dev | grep "hci" | wc -l > 1 ; then
+    if [ "$PASSEDDEV" == "" ]; then
+	echo "There are multiple HCI devices."
+	echo "Which HCI device do you want to use?"
+	while read HCIDEV
+	do
+	    if [[ "${ahci[hci$HCIDEV]}" == '' ]] ; then
+		echo "Invalid device [$HCIDEV].  Please enter the correct hci device number?"
+	    else
+		HCIDEV=hci${HCIDEV}
+		break
+	    fi
+	done
+    else
+	HCIDEV=$PASSEDDEV
+    fi
+    
+fi
+CONTROLLER=${ahci[$HCIDEV]}
+
+
+[ -z "$CONTROLLER" ] || [ -z "$MAC" ] && die "Call as: $0 keyboard-mac"
+
+infodir="/var/lib/bluetooth/$CONTROLLER/$MAC"
 [ -d "$infodir" ] || die "$infodir does not exist, cannot continue"
 
-if ! bccmd psget 0x3cd > /dev/null; then
+if ! bccmd -d $HCIDEV psget 0x3cd > /dev/null; then
   die "Unfortunately, your dongle is not capable of HID mode (or not powered on)"
 fi
 
 function readKeys() {
   export Key= EDiv= Rand=
-  export t= $(cat "/var/lib/bluetooth/$CTRL/$MAC/info" | sed -n -e '/^\[LongTermKey/,/^\[/p' | grep -E '^(Key|EDiv|Rand)=[A-F0-9]+$')
+  export t= $(cat "/var/lib/bluetooth/$CONTROLLER/$MAC/info" | sed -n -e '/^\[LongTermKey/,/^\[/p' | grep -E '^(Key|EDiv|Rand)=[A-F0-9]+$')
   if [ -z "$Key" ] || [ -z "$EDiv" ] || [ -z "$Rand" ]; then
     return 1
   fi
@@ -37,8 +86,8 @@ readKeys || die "Could not extract pairing keys"
 token=$(formatToken $(makeToken))
 [ ${#token} -eq 84 ] || die "Token $token has incorrect length"
 
-echo "Writing $token to /dev/$DEV"
-bccmd psload -s 0 /dev/stdin <<-EOF
+echo "Writing $token to /dev/$HCIDEV"
+bccmd -d $HCIDEV psload -s 0 /dev/stdin <<-EOF
 // PSKEY_USR42
 &02b4 = $token
 // PSKEY_INITIAL_BOOTMODE
@@ -63,5 +112,5 @@ if [ $? -ne 0 ]; then
   die 'write failed :-('
 fi
 
-bccmd psread | grep '&02b4'
+bccmd -d $HCIDEV psread | grep '&02b4'
 echo "Make sure the above output is $token"

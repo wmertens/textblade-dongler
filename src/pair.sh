@@ -6,8 +6,6 @@
 # TODO auto-switch HID mode devices
 
 HCIDEV=hci0
-# HCIDEV=hci1
-CONTROLLER=00:16:A4:0F:49:7A
 
 info() { echo -- "$@" >&2; }
 
@@ -31,46 +29,45 @@ echo
 
 declare -A ahci
 
+ahci=()
+pipe=/tmp/hcitool$$
+trap "rm -f $pipe" EXIT
+
+if [[ ! -p $pipe ]]; then
+    echo  mkfifo $pipe
+fi
+
+hcitool dev > $pipe 2> /dev/null
+while read -t 1 line
+do
+    case $line in
+	hci*)
+	    strs=($line)
+	    echo "	hci[${strs[0]##hci}]: " ${strs[1]}
+	    ahci+=([${strs[0]}]="${strs[1]}")
+	    # echo "hci[${strs[0]}]: "${hci[${strs[0]}]}
+	    ;;
+	*)
+	    echo "$line"
+	    ;;
+    esac
+    
+done < $pipe
+
 if hcitool dev | grep "hci" | wc -l > 1 ; then
     echo "There are multiple HCI devices."
     echo "Which HCI device do you want to use?"
-    ahci=()
-    pipe=/tmp/hcitool$$
-    trap "rm -f $pipe" EXIT
-
-    if [[ ! -p $pipe ]]; then
-	echo  mkfifo $pipe
-    fi
-    
-    hcitool dev > $pipe 2> /dev/null
-    while read -t 1 line
-    do
-	    case $line in
-		hci*)
-		    strs=($line)
-		    echo "	hci[${strs[0]##hci}]: " ${strs[1]}
-		    ahci+=([${strs[0]}]="${strs[1]}")
-		    # echo "hci[${strs[0]}]: "${hci[${strs[0]}]}
-		    ;;
-		*)
-		    echo "$line"
-		    ;;
-	    esac
-	
-    done < $pipe
-
     while read HCIDEV
     do
 	if [[ "${ahci[hci$HCIDEV]}" == '' ]] ; then
 	    echo "Invalid device [$HCIDEV].  Please enter the correct hci device number?"
 	else
-	    CONTROLLER=${ahci[hci$HCIDEV]}
 	    HCIDEV=hci${HCIDEV}
 	    break
 	fi
     done
-    
 fi
+CONTROLLER=${ahci[$HCIDEV]}
 
 info starting bluetoothctl
 coproc bluetoothctl
@@ -134,8 +131,8 @@ echo "If you type 'OK' now, I will run it for you"
 echo -n "OK? > "
 read ok
 echo
-if [ "$ok" = "OK" ]; then
-  make-hid.sh $dev
+if [ "${ok,,}" = "ok" ]; then
+  make-hid.sh $dev $HCIDEV
 else
   echo "Not running make-hid."
 fi
