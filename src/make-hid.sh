@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 MAC=$(echo "$1" | tr a-f A-F)
 HCIDEV=hci0
@@ -16,43 +16,43 @@ pipe=/tmp/hcitool$$
 trap "rm -f $pipe" EXIT
 
 if [[ ! -p $pipe ]]; then
-    echo  mkfifo $pipe
+  echo  mkfifo $pipe
 fi
 
 hcitool dev > $pipe 2> /dev/null
 while read -t 1 line
 do
-    case $line in
-	hci*)
-	    strs=($line)
-	    echo "	hci[${strs[0]##hci}]: " ${strs[1]}
-	    ahci+=([${strs[0]}]="${strs[1]}")
-	    # echo "hci[${strs[0]}]: "${hci[${strs[0]}]}
-	    ;;
-	*)
-	    echo "$line"
-	    ;;
-    esac
-    
+  case $line in
+    hci*)
+      strs=($line)
+      echo "	hci[${strs[0]##hci}]: " ${strs[1]}
+      ahci+=([${strs[0]}]="${strs[1]}")
+      # echo "hci[${strs[0]}]: "${hci[${strs[0]}]}
+      ;;
+    *)
+      echo "$line"
+      ;;
+  esac
+  
 done < $pipe
 
 if hcitool dev | grep "hci" | wc -l > 1 ; then
-    if [ "$PASSEDDEV" == "" ]; then
-	echo "There are multiple HCI devices."
-	echo "Which HCI device do you want to use?"
-	while read HCIDEV
-	do
-	    if [[ "${ahci[hci$HCIDEV]}" == '' ]] ; then
-		echo "Invalid device [$HCIDEV].  Please enter the correct hci device number?"
-	    else
-		HCIDEV=hci${HCIDEV}
-		break
-	    fi
-	done
-    else
-	HCIDEV=$PASSEDDEV
-    fi
-    
+  if [ "$PASSEDDEV" == "" ]; then
+    echo "There are multiple HCI devices."
+    echo "Which HCI device do you want to use?"
+    while read HCIDEV
+    do
+      if [[ "${ahci[hci$HCIDEV]}" == '' ]] ; then
+	echo "Invalid device [$HCIDEV].  Please enter the correct hci device number?"
+      else
+	HCIDEV=hci${HCIDEV}
+	break
+      fi
+    done
+  else
+    HCIDEV=$PASSEDDEV
+  fi
+  
 fi
 CONTROLLER=${ahci[$HCIDEV]}
 
@@ -114,3 +114,9 @@ fi
 
 bccmd -d $HCIDEV psread | grep '&02b4'
 echo "Make sure the above output is $token"
+
+
+#
+# Local Variables:
+# sh-basic-offset: 2
+# End:

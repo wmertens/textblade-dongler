@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Use bluetoothctl to pair because cannot make hcitool pair with a BLE keyboard
 # Unfortunately, that means bidirectional talking to the program
 # TODO present menu with devices to pair
@@ -11,17 +11,17 @@ info() { echo -- "$@" >&2; }
 
 echo -n "waiting for dongle"
 while ! lsusb | grep -q -e 0a12:0001 -e 04bf:100b -e 04bf:0320; do
-    if which csr-hid2hci > /dev/null ; then
-	csr-hid2hci | grep -v 'No device in HID mode found'
+  if which csr-hid2hci > /dev/null ; then
+    csr-hid2hci | grep -v 'No device in HID mode found'
+  else
+    if which hid2hci > /dev/null ; then
+      hid2hci | grep -v 'No device in HID mode found'
     else
-	if which hid2hci > /dev/null ; then
-	    hid2hci | grep -v 'No device in HID mode found'
-	else
-	    info "ERROR:  No hid2hci command available"
-	    exit 1
-	fi
+      info "ERROR:  No hid2hci command available"
+      exit 1
     fi
-    
+  fi
+  
   echo -n .
   sleep 1
 done
@@ -34,38 +34,38 @@ pipe=/tmp/hcitool$$
 trap "rm -f $pipe" EXIT
 
 if [[ ! -p $pipe ]]; then
-    echo  mkfifo $pipe
+  echo  mkfifo $pipe
 fi
 
 hcitool dev > $pipe 2> /dev/null
 while read -t 1 line
 do
-    case $line in
-	hci*)
-	    strs=($line)
-	    echo "	hci[${strs[0]##hci}]: " ${strs[1]}
-	    ahci+=([${strs[0]}]="${strs[1]}")
-	    # echo "hci[${strs[0]}]: "${hci[${strs[0]}]}
-	    ;;
-	*)
-	    echo "$line"
-	    ;;
-    esac
-    
+  case $line in
+    hci*)
+      strs=($line)
+      echo "	hci[${strs[0]##hci}]: " ${strs[1]}
+      ahci+=([${strs[0]}]="${strs[1]}")
+      # echo "hci[${strs[0]}]: "${hci[${strs[0]}]}
+      ;;
+    *)
+      echo "$line"
+      ;;
+  esac
+  
 done < $pipe
 
 if hcitool dev | grep "hci" | wc -l > 1 ; then
-    echo "There are multiple HCI devices."
-    echo "Which HCI device do you want to use?"
-    while read HCIDEV
-    do
-	if [[ "${ahci[hci$HCIDEV]}" == '' ]] ; then
-	    echo "Invalid device [$HCIDEV].  Please enter the correct hci device number?"
-	else
-	    HCIDEV=hci${HCIDEV}
-	    break
-	fi
-    done
+  echo "There are multiple HCI devices."
+  echo "Which HCI device do you want to use?"
+  while read HCIDEV
+  do
+    if [[ "${ahci[hci$HCIDEV]}" == '' ]] ; then
+      echo "Invalid device [$HCIDEV].  Please enter the correct hci device number?"
+    else
+      HCIDEV=hci${HCIDEV}
+      break
+    fi
+  done
 fi
 CONTROLLER=${ahci[$HCIDEV]}
 
@@ -136,3 +136,8 @@ if [ "${ok,,}" = "ok" ]; then
 else
   echo "Not running make-hid."
 fi
+
+#
+# Local Variables:
+# sh-basic-offset: 2
+# End:
